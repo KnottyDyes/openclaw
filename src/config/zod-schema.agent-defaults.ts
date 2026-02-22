@@ -55,6 +55,22 @@ export const AgentDefaultsSchema = z
     contextTokens: z.number().int().positive().optional(),
     cliBackends: z.record(z.string(), CliBackendSchema).optional(),
     memorySearch: MemorySearchSchema,
+    vectorRecall: z
+      .object({
+        enabled: z.boolean().optional(),
+        mode: z.union([z.literal("heuristic"), z.literal("always")]).optional(),
+        limit: z.number().int().positive().optional(),
+        maxChars: z.number().int().positive().optional(),
+        maxSnippetChars: z.number().int().positive().optional(),
+        systemLabel: z.string().optional(),
+        qdrantUrl: z.string().optional(),
+        qdrantCollection: z.string().optional(),
+        qdrantApiKeyEnv: z.string().optional(),
+        ollamaUrl: z.string().optional(),
+        ollamaEmbedModel: z.string().optional(),
+      })
+      .strict()
+      .optional(),
     contextPruning: z
       .object({
         mode: z.union([z.literal("off"), z.literal("cache-ttl")]).optional(),

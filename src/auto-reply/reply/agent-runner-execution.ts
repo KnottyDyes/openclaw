@@ -39,6 +39,7 @@ import { type BlockReplyPipeline } from "./block-reply-pipeline.js";
 import type { FollowupRun } from "./queue.js";
 import { createBlockReplyDeliveryHandler } from "./reply-delivery.js";
 import type { TypingSignaler } from "./typing-mode.js";
+import { buildVectorRecallSystemPrompt } from "./vector-recall.js";
 
 export type AgentRunLoopResult =
   | {
@@ -101,6 +102,12 @@ export async function runAgentTurnWithFallback(params: {
   let fallbackModel = params.followupRun.run.model;
   let didResetAfterCompactionFailure = false;
   let didRetryTransientHttpError = false;
+
+  const vectorRecallSystemPrompt = await buildVectorRecallSystemPrompt({
+    cfg: params.followupRun.run.config,
+    messageText: params.commandBody,
+    isHeartbeat: params.isHeartbeat,
+  });
 
   while (true) {
     try {
@@ -185,7 +192,12 @@ export async function runAgentTurnWithFallback(params: {
                   thinkLevel: params.followupRun.run.thinkLevel,
                   timeoutMs: params.followupRun.run.timeoutMs,
                   runId,
-                  extraSystemPrompt: params.followupRun.run.extraSystemPrompt,
+                  extraSystemPrompt: [
+                    params.followupRun.run.extraSystemPrompt,
+                    vectorRecallSystemPrompt,
+                  ]
+                    .filter(Boolean)
+                    .join("\n\n"),
                   ownerNumbers: params.followupRun.run.ownerNumbers,
                   cliSessionId,
                   images: params.opts?.images,
@@ -268,7 +280,9 @@ export async function runAgentTurnWithFallback(params: {
             ...senderContext,
             ...runBaseParams,
             prompt: params.commandBody,
-            extraSystemPrompt: params.followupRun.run.extraSystemPrompt,
+            extraSystemPrompt: [params.followupRun.run.extraSystemPrompt, vectorRecallSystemPrompt]
+              .filter(Boolean)
+              .join("\n\n"),
             toolResultFormat: (() => {
               const channel = resolveMessageChannel(
                 params.sessionCtx.Surface,

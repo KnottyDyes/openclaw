@@ -164,6 +164,8 @@ export type AgentDefaultsConfig = {
   compaction?: AgentCompactionConfig;
   /** Vector memory search configuration (per-agent overrides supported). */
   memorySearch?: MemorySearchConfig;
+  /** Optional vector recall injected into prompts (Qdrant/etc). */
+  vectorRecall?: AgentVectorRecallConfig;
   /** Default thinking level when no /think directive is present. */
   thinkingDefault?: "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
   /** Default verbose level when no /verbose directive is present. */
@@ -306,4 +308,42 @@ export type AgentCompactionMemoryFlushConfig = {
   prompt?: string;
   /** System prompt appended for the memory flush turn. */
   systemPrompt?: string;
+};
+
+export type AgentVectorRecallMode = "heuristic" | "always";
+
+/**
+ * Optional vector memory recall injected into the system prompt.
+ *
+ * This is intentionally provider-agnostic. Implementations may use Qdrant, Pinecone, etc.
+ *
+ * NOTE: Secrets must be supplied via env vars (e.g., QDRANT_API_KEY).
+ */
+export type AgentVectorRecallConfig = {
+  enabled?: boolean;
+  /**
+   * - heuristic: only run when the user message looks like a memory question (default)
+   * - always: run for every non-heartbeat message
+   */
+  mode?: AgentVectorRecallMode;
+  /** Max number of hits to inject (default 6). */
+  limit?: number;
+  /** Max characters for the injected system block (default 2200). */
+  maxChars?: number;
+  /** Max characters per snippet (default 500). */
+  maxSnippetChars?: number;
+  /** Label for injected memory block (default: "Vector recall (Qdrant)"). */
+  systemLabel?: string;
+
+  /** Base URL for Qdrant (default: env QDRANT_URL or http://127.0.0.1:6333). */
+  qdrantUrl?: string;
+  /** Collection name (default: env QDRANT_COLLECTION or roberto_memories). */
+  qdrantCollection?: string;
+  /** Env var name holding Qdrant API key (default: QDRANT_API_KEY). */
+  qdrantApiKeyEnv?: string;
+
+  /** Base URL for Ollama (default: env OLLAMA_URL or http://127.0.0.1:11434). */
+  ollamaUrl?: string;
+  /** Embedding model name for Ollama (default: env OLLAMA_EMBED_MODEL or mxbai-embed-large:latest). */
+  ollamaEmbedModel?: string;
 };
