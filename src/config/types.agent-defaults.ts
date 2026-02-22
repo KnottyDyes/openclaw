@@ -337,7 +337,7 @@ export type AgentVectorRecallConfig = {
 
   /** Base URL for Qdrant (default: env QDRANT_URL or http://127.0.0.1:6333). */
   qdrantUrl?: string;
-  /** Collection name (default: env QDRANT_COLLECTION or roberto_memories). */
+  /** Collection name (default: env QDRANT_COLLECTION or agent_memories). */
   qdrantCollection?: string;
   /** Env var name holding Qdrant API key (default: QDRANT_API_KEY). */
   qdrantApiKeyEnv?: string;

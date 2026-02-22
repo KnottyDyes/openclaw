@@ -33,7 +33,7 @@ export function resolveVectorRecallSettings(cfg: OpenClawConfig): VectorRecallSe
 
   const qdrantUrl = String(raw.qdrantUrl ?? process.env.QDRANT_URL ?? "http://127.0.0.1:6333");
   const qdrantCollection = String(
-    raw.qdrantCollection ?? process.env.QDRANT_COLLECTION ?? "roberto_memories",
+    raw.qdrantCollection ?? process.env.QDRANT_COLLECTION ?? "agent_memories",
   );
   const qdrantApiKeyEnv = String(raw.qdrantApiKeyEnv ?? "QDRANT_API_KEY");
 
